@@ -7,11 +7,15 @@ anaconda環境をバックグラウンドで立ち上げる
 ```bash
 docker-compose up -d
 ```
+ブラウザからJupyter Lab に入る
+```bash
+http://localhost:8080/
+```
 anaconda環境を停止させる
 ```
 docker-compose down
 ```
-anaconda環境リセットの滅びの呪文
+環境リセットの滅びの呪文
 ```
 docker-compose down --rmi all --volumes
 ```
