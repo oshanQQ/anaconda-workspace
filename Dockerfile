@@ -2,9 +2,12 @@
 FROM continuumio/anaconda3:2021.05
 
 # pipをアップグレードし必要なパッケージをインストール
-RUN pip install --upgrade pip && \
+RUN apt update && \
+    apt install -y libgl1-mesa-dev && \
+    pip install --upgrade pip && \
     pip install autopep8 && \
     pip install Keras && \
+    pip install opencv-contrib-python && \
     pip install tensorflow 
 
 # コンテナ側のルート直下にworks/（任意）という名前の作業ディレクトリを作り移動する
