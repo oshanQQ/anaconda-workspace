@@ -10,7 +10,7 @@ RUN apt update && \
     pip install Keras && \
     pip install opencv-contrib-python && \
     pip install pydot && \
-    pip install tensorflow 
+    pip install tensorflow==1.15
 
 # コンテナ側のルート直下にworks/（任意）という名前の作業ディレクトリを作り移動する
 WORKDIR /works

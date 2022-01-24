@@ -1,6 +1,6 @@
 import cv2
 
-path = "img/lena.jpg"
+path = "./original_image/IMG_20211017_131639.jpg"
 img_gray = cv2.imread(path, 0)
 img_canny = cv2.Canny(img_gray, 100, 200)
 
