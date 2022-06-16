@@ -24,9 +24,9 @@ def get_weight(shape, gain=np.sqrt(2), use_wscale=False, fan_in=None):
     std = gain / np.sqrt(fan_in) # He init
     if use_wscale:
         wscale = tf.constant(np.float32(std), name='wscale')
-        return tf.get_variable('weight', shape=shape, initializer=tf.initializers.random_normal()) * wscale
+        return tf.compat.v1.get_variable('weight', shape=shape, initializer=tf.initializers.RandomNormal()) * wscale
     else:
-        return tf.get_variable('weight', shape=shape, initializer=tf.initializers.random_normal(0, std))
+        return tf.compat.v1.get_variable('weight', shape=shape, initializer=tf.initializers.random_normal(0, std))
 
 #----------------------------------------------------------------------------
 # Fully-connected layer.
@@ -34,7 +34,7 @@ def get_weight(shape, gain=np.sqrt(2), use_wscale=False, fan_in=None):
 def dense(x, fmaps, gain=np.sqrt(2), use_wscale=False):
     if len(x.shape) > 2:
         x = tf.reshape(x, [-1, np.prod([d.value for d in x.shape[1:]])])
-    w = get_weight([x.shape[1].value, fmaps], gain=gain, use_wscale=use_wscale)
+    w = get_weight([x.shape[1], fmaps], gain=gain, use_wscale=use_wscale)
     w = tf.cast(w, x.dtype)
     return tf.matmul(x, w)
 
@@ -43,7 +43,7 @@ def dense(x, fmaps, gain=np.sqrt(2), use_wscale=False):
 
 def conv2d(x, fmaps, kernel, gain=np.sqrt(2), use_wscale=False):
     assert kernel >= 1 and kernel % 2 == 1
-    w = get_weight([kernel, kernel, x.shape[1].value, fmaps], gain=gain, use_wscale=use_wscale)
+    w = get_weight([kernel, kernel, x.shape[1], fmaps], gain=gain, use_wscale=use_wscale)
     w = tf.cast(w, x.dtype)
     return tf.nn.conv2d(x, w, strides=[1,1,1,1], padding='SAME', data_format='NCHW')
 
@@ -51,7 +51,7 @@ def conv2d(x, fmaps, kernel, gain=np.sqrt(2), use_wscale=False):
 # Apply bias to the given activation tensor.
 
 def apply_bias(x):
-    b = tf.get_variable('bias', shape=[x.shape[1]], initializer=tf.initializers.zeros())
+    b = tf.compat.v1.get_variable('bias', shape=[x.shape[1]], initializer=tf.initializers.zeros())
     b = tf.cast(b, x.dtype)
     if len(x.shape) == 2:
         return x + b
@@ -72,7 +72,7 @@ def leaky_relu(x, alpha=0.2):
 def upscale2d(x, factor=2):
     assert isinstance(factor, int) and factor >= 1
     if factor == 1: return x
-    with tf.variable_scope('Upscale2D'):
+    with tf.compat.v1.variable_scope('Upscale2D'):
         s = x.shape
         x = tf.reshape(x, [-1, s[1], s[2], 1, s[3], 1])
         x = tf.tile(x, [1, 1, 1, factor, 1, factor])
@@ -85,7 +85,7 @@ def upscale2d(x, factor=2):
 
 def upscale2d_conv2d(x, fmaps, kernel, gain=np.sqrt(2), use_wscale=False):
     assert kernel >= 1 and kernel % 2 == 1
-    w = get_weight([kernel, kernel, fmaps, x.shape[1].value], gain=gain, use_wscale=use_wscale, fan_in=(kernel**2)*x.shape[1].value)
+    w = get_weight([kernel, kernel, fmaps, x.shape[1]], gain=gain, use_wscale=use_wscale, fan_in=(kernel**2)*x.shape[1])
     w = tf.pad(w, [[1,1], [1,1], [0,0], [0,0]], mode='CONSTANT')
     w = tf.add_n([w[1:, 1:], w[:-1, 1:], w[1:, :-1], w[:-1, :-1]])
     w = tf.cast(w, x.dtype)
@@ -118,8 +118,8 @@ def conv2d_downscale2d(x, fmaps, kernel, gain=np.sqrt(2), use_wscale=False):
 # Pixelwise feature vector normalization.
 
 def pixel_norm(x, epsilon=1e-8):
-    with tf.variable_scope('PixelNorm'):
-        return x * tf.rsqrt(tf.reduce_mean(tf.square(x), axis=1, keepdims=True) + epsilon)
+    with tf.compat.v1.variable_scope('PixelNorm'):
+        return x * tf.compat.v1.rsqrt(tf.reduce_mean(tf.square(x), axis=1, keepdims=True) + epsilon)
 
 #----------------------------------------------------------------------------
 # Minibatch standard deviation.
@@ -173,33 +173,33 @@ def G_paper(
     latents_in.set_shape([None, latent_size])
     labels_in.set_shape([None, label_size])
     combo_in = tf.cast(tf.concat([latents_in, labels_in], axis=1), dtype)
-    lod_in = tf.cast(tf.get_variable('lod', initializer=np.float32(0.0), trainable=False), dtype)
+    lod_in = tf.cast(tf.compat.v1.get_variable('lod', initializer=np.float32(0.0), trainable=False), dtype)
 
     # Building blocks.
     def block(x, res): # res = 2..resolution_log2
-        with tf.variable_scope('%dx%d' % (2**res, 2**res)):
+        with tf.compat.v1.variable_scope('%dx%d' % (2**res, 2**res)):
             if res == 2: # 4x4
                 if normalize_latents: x = pixel_norm(x, epsilon=pixelnorm_epsilon)
-                with tf.variable_scope('Dense'):
+                with tf.compat.v1.variable_scope('Dense'):
                     x = dense(x, fmaps=nf(res-1)*16, gain=np.sqrt(2)/4, use_wscale=use_wscale) # override gain to match the original Theano implementation
                     x = tf.reshape(x, [-1, nf(res-1), 4, 4])
                     x = PN(act(apply_bias(x)))
-                with tf.variable_scope('Conv'):
+                with tf.compat.v1.variable_scope('Conv'):
                     x = PN(act(apply_bias(conv2d(x, fmaps=nf(res-1), kernel=3, use_wscale=use_wscale))))
             else: # 8x8 and up
                 if fused_scale:
-                    with tf.variable_scope('Conv0_up'):
+                    with tf.compat.v1.variable_scope('Conv0_up'):
                         x = PN(act(apply_bias(upscale2d_conv2d(x, fmaps=nf(res-1), kernel=3, use_wscale=use_wscale))))
                 else:
                     x = upscale2d(x)
                     with tf.variable_scope('Conv0'):
                         x = PN(act(apply_bias(conv2d(x, fmaps=nf(res-1), kernel=3, use_wscale=use_wscale))))
-                with tf.variable_scope('Conv1'):
+                with tf.compat.v1.variable_scope('Conv1'):
                     x = PN(act(apply_bias(conv2d(x, fmaps=nf(res-1), kernel=3, use_wscale=use_wscale))))
             return x
     def torgb(x, res): # res = 2..resolution_log2
         lod = resolution_log2 - res
-        with tf.variable_scope('ToRGB_lod%d' % lod):
+        with tf.compat.v1.variable_scope('ToRGB_lod%d' % lod):
             return apply_bias(conv2d(x, fmaps=num_channels, kernel=1, gain=1, use_wscale=use_wscale))
 
     # Linear structure: simple but inefficient.
@@ -211,7 +211,7 @@ def G_paper(
             x = block(x, res)
             img = torgb(x, res)
             images_out = upscale2d(images_out)
-            with tf.variable_scope('Grow_lod%d' % lod):
+            with tf.compat.v1.variable_scope('Grow_lod%d' % lod):
                 images_out = lerp_clip(img, images_out, lod_in - lod)
 
     # Recursive structure: complex but efficient.
@@ -255,7 +255,7 @@ def D_paper(
 
     images_in.set_shape([None, num_channels, resolution, resolution])
     images_in = tf.cast(images_in, dtype)
-    lod_in = tf.cast(tf.get_variable('lod', initializer=np.float32(0.0), trainable=False), dtype)
+    lod_in = tf.cast(tf.compat.v1.get_variable('lod', initializer=np.float32(0.0), trainable=False), dtype)
 
     # Building blocks.
     def fromrgb(x, res): # res = 2..resolution_log2
