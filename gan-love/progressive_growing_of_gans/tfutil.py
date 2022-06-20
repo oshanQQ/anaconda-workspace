@@ -18,13 +18,13 @@ import tensorflow as tf
 # Convenience.
 
 def run(*args, **kwargs): # Run the specified ops in the default session.
-    return tf.compat.v1.get_default_session().run(*args, **kwargs)
+    return tf.get_default_session().run(*args, **kwargs)
 
 def is_tf_expression(x):
     return isinstance(x, tf.Tensor) or isinstance(x, tf.Variable) or isinstance(x, tf.Operation)
 
 def shape_to_list(shape):
-    return [dim for dim in shape]
+    return [dim.value for dim in shape]
 
 def flatten(x):
     with tf.name_scope('Flatten'):
@@ -53,8 +53,8 @@ def absolute_name_scope(scope): # Forcefully enter the specified name scope, ign
 # Initialize TensorFlow graph and session using good default settings.
 
 def init_tf(config_dict=dict()):
-    if tf.compat.v1.get_default_session() is None:
-        tf.compat.v1.set_random_seed(np.random.randint(1 << 31))
+    if tf.get_default_session() is None:
+        tf.set_random_seed(np.random.randint(1 << 31))
         create_session(config_dict, force_as_default=True)
 
 #----------------------------------------------------------------------------
@@ -62,14 +62,14 @@ def init_tf(config_dict=dict()):
 # {'gpu_options.allow_growth': True}
 
 def create_session(config_dict=dict(), force_as_default=False):
-    config = tf.compat.v1.ConfigProto()
+    config = tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))
     for key, value in config_dict.items():
         fields = key.split('.')
         obj = config
         for field in fields[:-1]:
             obj = getattr(obj, field)
         setattr(obj, fields[-1], value)
-    session = tf.compat.v1.Session(config=config)
+    session = tf.Session(config=config)
     if force_as_default:
         session._default_session = session.as_default()
         session._default_session.enforce_nesting = False
@@ -108,11 +108,11 @@ def set_vars(var_to_value_dict):
     for var, value in var_to_value_dict.items():
         assert is_tf_expression(var)
         try:
-            setter = tf.compat.v1.get_default_graph().get_tensor_by_name(var.name.replace(':0', '/setter:0')) # look for existing op
+            setter = tf.get_default_graph().get_tensor_by_name(var.name.replace(':0', '/setter:0')) # look for existing op
         except KeyError:
             with absolute_name_scope(var.name.split(':')[0]):
                 with tf.control_dependencies(None): # ignore surrounding control_dependencies
-                    setter = tf.compat.v1.assign(var, tf.compat.v1.placeholder(var.dtype, var.shape, 'new_value'), name='setter') # create new setter
+                    setter = tf.assign(var, tf.placeholder(var.dtype, var.shape, 'new_value'), name='setter') # create new setter
         ops.append(setter)
         feed_dict[setter.op.inputs[1]] = value
     run(ops, feed_dict)
@@ -465,14 +465,14 @@ class Network:
         # Choose name and scope.
         if self.name is None:
             self.name = self._build_func_name
-        self.scope = tf.compat.v1.get_default_graph().unique_name(self.name.replace('/', '_'), mark_as_used=False)
+        self.scope = tf.get_default_graph().unique_name(self.name.replace('/', '_'), mark_as_used=False)
         
         # Build template graph.
-        with tf.compat.v1.variable_scope(self.scope, reuse=tf.compat.v1.AUTO_REUSE):
-            assert tf.compat.v1.get_variable_scope().name == self.scope
+        with tf.variable_scope(self.scope, reuse=tf.AUTO_REUSE):
+            assert tf.get_variable_scope().name == self.scope
             with absolute_name_scope(self.scope): # ignore surrounding name_scope
                 with tf.control_dependencies(None): # ignore surrounding control_dependencies
-                    self.input_templates = [tf.compat.v1.placeholder(tf.float32, name=name) for name in self.input_names]
+                    self.input_templates = [tf.placeholder(tf.float32, name=name) for name in self.input_names]
                     out_expr = self._build_func(*self.input_templates, is_template_graph=True, **self.static_kwargs)
             
         # Collect outputs.
@@ -487,8 +487,8 @@ class Network:
         self.output_shapes  = [shape_to_list(t.shape) for t in self.output_templates]
         self.input_shape    = self.input_shapes[0]
         self.output_shape   = self.output_shapes[0]
-        self.vars           = OrderedDict([(self.get_var_localname(var), var) for var in tf.compat.v1.global_variables(self.scope + '/')])
-        self.trainables     = OrderedDict([(self.get_var_localname(var), var) for var in tf.compat.v1.trainable_variables(self.scope + '/')])
+        self.vars           = OrderedDict([(self.get_var_localname(var), var) for var in tf.global_variables(self.scope + '/')])
+        self.trainables     = OrderedDict([(self.get_var_localname(var), var) for var in tf.trainable_variables(self.scope + '/')])
 
     # Run initializers for all variables defined by this network.
     def reset_vars(self):

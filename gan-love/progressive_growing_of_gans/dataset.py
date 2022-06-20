@@ -15,10 +15,10 @@ import tfutil
 # Parse individual image from a tfrecords file.
 
 def parse_tfrecord_tf(record):
-    features = tf.io.parse_single_example(record, features={
-        'shape': tf.io.FixedLenFeature([3], tf.int64),
-        'data': tf.io.FixedLenFeature([], tf.string)})
-    data = tf.io.decode_raw(features['data'], tf.uint8)
+    features = tf.parse_single_example(record, features={
+        'shape': tf.FixedLenFeature([3], tf.int64),
+        'data': tf.FixedLenFeature([], tf.string)})
+    data = tf.decode_raw(features['data'], tf.uint8)
     return tf.reshape(data, features['shape'])
 
 def parse_tfrecord_np(record):
@@ -70,8 +70,8 @@ class TFRecordDataset:
         assert len(tfr_files) >= 1
         tfr_shapes = []
         for tfr_file in tfr_files:
-            tfr_opt = tf.compat.v1.python_io.TFRecordOptions(tf.compat.v1.python_io.TFRecordCompressionType.NONE)
-            for record in tf.compat.v1.python_io.tf_record_iterator(tfr_file, tfr_opt):
+            tfr_opt = tf.python_io.TFRecordOptions(tf.python_io.TFRecordCompressionType.NONE)
+            for record in tf.python_io.tf_record_iterator(tfr_file, tfr_opt):
                 tfr_shapes.append(parse_tfrecord_np(record).shape)
                 break
 
@@ -109,8 +109,7 @@ class TFRecordDataset:
 
         # Build TF expressions.
         with tf.name_scope('Dataset'), tf.device('/cpu:0'):
-            tf.compat.v1.disable_eager_execution()
-            self._tf_minibatch_in = tf.compat.v1.placeholder(tf.int64, name='minibatch_in', shape=[])
+            self._tf_minibatch_in = tf.placeholder(tf.int64, name='minibatch_in', shape=[])
             tf_labels_init = tf.zeros(self._np_labels.shape, self._np_labels.dtype)
             self._tf_labels_var = tf.Variable(tf_labels_init, name='labels_var')
             tfutil.set_vars({self._tf_labels_var: self._np_labels})
@@ -131,7 +130,7 @@ class TFRecordDataset:
                 dset = dset.batch(self._tf_minibatch_in)
                 self._tf_datasets[tfr_lod] = dset
             
-            self._tf_iterator = tf.compat.v1.data.Iterator.from_structure(tf.compat.v1.data.get_output_types(self._tf_datasets[0]), tf.compat.v1.data.get_output_shapes(self._tf_datasets[0]))
+            self._tf_iterator = tf.data.Iterator.from_structure(self._tf_datasets[0].output_types, self._tf_datasets[0].output_shapes)
             self._tf_init_ops = {lod: self._tf_iterator.make_initializer(dset) for lod, dset in self._tf_datasets.items()}
 
     # Use the given minibatch size and level-of-detail for the data returned by get_minibatch_tf().
