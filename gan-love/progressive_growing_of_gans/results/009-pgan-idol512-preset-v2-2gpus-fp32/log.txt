@@ -1,0 +1,182 @@
+Initializing TensorFlow...
+Running train.train_progressive_gan()...
+Streaming data using dataset.TFRecordDataset...
+dataset directory: dataset_for_pggan/dataset_for_pggan
+Dataset shape = [3, 512, 512]
+Dynamic range = [0, 255]
+Label size    = 0
+Constructing networks...
+
+G                           Params      OutputShape             WeightShape             
+---                         ---         ---                     ---                     
+latents_in                  -           (?, 512)                -                       
+labels_in                   -           (?, 0)                  -                       
+lod                         -           ()                      -                       
+4x4/PixelNorm               -           (?, 512)                -                       
+4x4/Dense                   4194816     (?, 512, 4, 4)          (512, 8192)             
+4x4/Conv                    2359808     (?, 512, 4, 4)          (3, 3, 512, 512)        
+ToRGB_lod7                  1539        (?, 3, 4, 4)            (1, 1, 512, 3)          
+8x8/Conv0_up                2359808     (?, 512, 8, 8)          (3, 3, 512, 512)        
+8x8/Conv1                   2359808     (?, 512, 8, 8)          (3, 3, 512, 512)        
+ToRGB_lod6                  1539        (?, 3, 8, 8)            (1, 1, 512, 3)          
+Upscale2D                   -           (?, 3, 8, 8)            -                       
+Grow_lod6                   -           (?, 3, 8, 8)            -                       
+16x16/Conv0_up              2359808     (?, 512, 16, 16)        (3, 3, 512, 512)        
+16x16/Conv1                 2359808     (?, 512, 16, 16)        (3, 3, 512, 512)        
+ToRGB_lod5                  1539        (?, 3, 16, 16)          (1, 1, 512, 3)          
+Upscale2D_1                 -           (?, 3, 16, 16)          -                       
+Grow_lod5                   -           (?, 3, 16, 16)          -                       
+32x32/Conv0_up              2359808     (?, 512, 32, 32)        (3, 3, 512, 512)        
+32x32/Conv1                 2359808     (?, 512, 32, 32)        (3, 3, 512, 512)        
+ToRGB_lod4                  1539        (?, 3, 32, 32)          (1, 1, 512, 3)          
+Upscale2D_2                 -           (?, 3, 32, 32)          -                       
+Grow_lod4                   -           (?, 3, 32, 32)          -                       
+64x64/Conv0_up              1179904     (?, 256, 64, 64)        (3, 3, 256, 512)        
+64x64/Conv1                 590080      (?, 256, 64, 64)        (3, 3, 256, 256)        
+ToRGB_lod3                  771         (?, 3, 64, 64)          (1, 1, 256, 3)          
+Upscale2D_3                 -           (?, 3, 64, 64)          -                       
+Grow_lod3                   -           (?, 3, 64, 64)          -                       
+128x128/Conv0_up            295040      (?, 128, 128, 128)      (3, 3, 128, 256)        
+128x128/Conv1               147584      (?, 128, 128, 128)      (3, 3, 128, 128)        
+ToRGB_lod2                  387         (?, 3, 128, 128)        (1, 1, 128, 3)          
+Upscale2D_4                 -           (?, 3, 128, 128)        -                       
+Grow_lod2                   -           (?, 3, 128, 128)        -                       
+256x256/Conv0_up            73792       (?, 64, 256, 256)       (3, 3, 64, 128)         
+256x256/Conv1               36928       (?, 64, 256, 256)       (3, 3, 64, 64)          
+ToRGB_lod1                  195         (?, 3, 256, 256)        (1, 1, 64, 3)           
+Upscale2D_5                 -           (?, 3, 256, 256)        -                       
+Grow_lod1                   -           (?, 3, 256, 256)        -                       
+512x512/Conv0_up            18464       (?, 32, 512, 512)       (3, 3, 32, 64)          
+512x512/Conv1               9248        (?, 32, 512, 512)       (3, 3, 32, 32)          
+ToRGB_lod0                  99          (?, 3, 512, 512)        (1, 1, 32, 3)           
+Upscale2D_6                 -           (?, 3, 512, 512)        -                       
+Grow_lod0                   -           (?, 3, 512, 512)        -                       
+images_out                  -           (?, 3, 512, 512)        -                       
+---                         ---         ---                     ---                     
+Total                       23072120                                                    
+
+
+D                           Params      OutputShape             WeightShape             
+---                         ---         ---                     ---                     
+images_in                   -           (?, 3, 512, 512)        -                       
+lod                         -           ()                      -                       
+FromRGB_lod0                128         (?, 32, 512, 512)       (1, 1, 3, 32)           
+512x512/Conv0               9248        (?, 32, 512, 512)       (3, 3, 32, 32)          
+512x512/Conv1_down          18496       (?, 64, 256, 256)       (3, 3, 32, 64)          
+Downscale2D                 -           (?, 3, 256, 256)        -                       
+FromRGB_lod1                256         (?, 64, 256, 256)       (1, 1, 3, 64)           
+Grow_lod0                   -           (?, 64, 256, 256)       -                       
+256x256/Conv0               36928       (?, 64, 256, 256)       (3, 3, 64, 64)          
+256x256/Conv1_down          73856       (?, 128, 128, 128)      (3, 3, 64, 128)         
+Downscale2D_1               -           (?, 3, 128, 128)        -                       
+FromRGB_lod2                512         (?, 128, 128, 128)      (1, 1, 3, 128)          
+Grow_lod1                   -           (?, 128, 128, 128)      -                       
+128x128/Conv0               147584      (?, 128, 128, 128)      (3, 3, 128, 128)        
+128x128/Conv1_down          295168      (?, 256, 64, 64)        (3, 3, 128, 256)        
+Downscale2D_2               -           (?, 3, 64, 64)          -                       
+FromRGB_lod3                1024        (?, 256, 64, 64)        (1, 1, 3, 256)          
+Grow_lod2                   -           (?, 256, 64, 64)        -                       
+64x64/Conv0                 590080      (?, 256, 64, 64)        (3, 3, 256, 256)        
+64x64/Conv1_down            1180160     (?, 512, 32, 32)        (3, 3, 256, 512)        
+Downscale2D_3               -           (?, 3, 32, 32)          -                       
+FromRGB_lod4                2048        (?, 512, 32, 32)        (1, 1, 3, 512)          
+Grow_lod3                   -           (?, 512, 32, 32)        -                       
+32x32/Conv0                 2359808     (?, 512, 32, 32)        (3, 3, 512, 512)        
+32x32/Conv1_down            2359808     (?, 512, 16, 16)        (3, 3, 512, 512)        
+Downscale2D_4               -           (?, 3, 16, 16)          -                       
+FromRGB_lod5                2048        (?, 512, 16, 16)        (1, 1, 3, 512)          
+Grow_lod4                   -           (?, 512, 16, 16)        -                       
+16x16/Conv0                 2359808     (?, 512, 16, 16)        (3, 3, 512, 512)        
+16x16/Conv1_down            2359808     (?, 512, 8, 8)          (3, 3, 512, 512)        
+Downscale2D_5               -           (?, 3, 8, 8)            -                       
+FromRGB_lod6                2048        (?, 512, 8, 8)          (1, 1, 3, 512)          
+Grow_lod5                   -           (?, 512, 8, 8)          -                       
+8x8/Conv0                   2359808     (?, 512, 8, 8)          (3, 3, 512, 512)        
+8x8/Conv1_down              2359808     (?, 512, 4, 4)          (3, 3, 512, 512)        
+Downscale2D_6               -           (?, 3, 4, 4)            -                       
+FromRGB_lod7                2048        (?, 512, 4, 4)          (1, 1, 3, 512)          
+Grow_lod6                   -           (?, 512, 4, 4)          -                       
+4x4/MinibatchStddev         -           (?, 1, 4, 4)            -                       
+4x4/Conv                    2364416     (?, 512, 4, 4)          (3, 3, 513, 512)        
+4x4/Dense0                  4194816     (?, 512)                (8192, 512)             
+4x4/Dense1                  513         (?, 1)                  (512, 1)                
+scores_out                  -           (?, 1)                  -                       
+labels_out                  -           (?, 0)                  -                       
+---                         ---         ---                     ---                     
+Total                       23080225                                                    
+
+Building TensorFlow graph...
+Setting up snapshot image grid...
+Setting up result dir...
+Saving results to results/009-pgan-idol512-preset-v2-2gpus-fp32
+Training...
+Traceback (most recent call last):
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1361, in _do_call
+    return fn(*args)
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1340, in _run_fn
+    target_list, status, run_metadata)
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/framework/errors_impl.py", line 516, in __exit__
+    c_api.TF_GetCode(self.status.status))
+tensorflow.python.framework.errors_impl.InternalError: Blas GEMM launch failed : a.shape=(128, 512), b.shape=(512, 8192), m=128, n=8192, k=512
+	 [[Node: GPU0/D_loss/G/4x4/Dense/MatMul = MatMul[T=DT_FLOAT, transpose_a=false, transpose_b=false, _device="/job:localhost/replica:0/task:0/device:GPU:0"](GPU0/D_loss/G/4x4/PixelNorm/mul, GPU0/D_loss/G/4x4/Dense/mul)]]
+	 [[Node: TrainD/ApplyGrads1/UpdateWeights/cond/pred_id/_2365 = _HostRecv[client_terminated=false, recv_device="/job:localhost/replica:0/task:0/device:CPU:0", send_device="/job:localhost/replica:0/task:0/device:GPU:1", send_device_incarnation=1, tensor_name="edge_44614_TrainD/ApplyGrads1/UpdateWeights/cond/pred_id", tensor_type=DT_BOOL, _device="/job:localhost/replica:0/task:0/device:CPU:0"]()]]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "train.py", line 285, in <module>
+    tfutil.call_func_by_name(**config.train)
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/tfutil.py", line 236, in call_func_by_name
+    return import_obj(func)(*args, **kwargs)
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/train.py", line 229, in train_progressive_gan
+    tfutil.run([D_train_op, Gs_update_op], {lod_in: sched.lod, lrate_in: sched.D_lrate, minibatch_in: sched.minibatch})
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/tfutil.py", line 21, in run
+    return tf.get_default_session().run(*args, **kwargs)
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 905, in run
+    run_metadata_ptr)
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1137, in _run
+    feed_dict_tensor, options, run_metadata)
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1355, in _do_run
+    options, run_metadata)
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/client/session.py", line 1374, in _do_call
+    raise type(e)(node_def, op, message)
+tensorflow.python.framework.errors_impl.InternalError: Blas GEMM launch failed : a.shape=(128, 512), b.shape=(512, 8192), m=128, n=8192, k=512
+	 [[Node: GPU0/D_loss/G/4x4/Dense/MatMul = MatMul[T=DT_FLOAT, transpose_a=false, transpose_b=false, _device="/job:localhost/replica:0/task:0/device:GPU:0"](GPU0/D_loss/G/4x4/PixelNorm/mul, GPU0/D_loss/G/4x4/Dense/mul)]]
+	 [[Node: TrainD/ApplyGrads1/UpdateWeights/cond/pred_id/_2365 = _HostRecv[client_terminated=false, recv_device="/job:localhost/replica:0/task:0/device:CPU:0", send_device="/job:localhost/replica:0/task:0/device:GPU:1", send_device_incarnation=1, tensor_name="edge_44614_TrainD/ApplyGrads1/UpdateWeights/cond/pred_id", tensor_type=DT_BOOL, _device="/job:localhost/replica:0/task:0/device:CPU:0"]()]]
+
+Caused by op 'GPU0/D_loss/G/4x4/Dense/MatMul', defined at:
+  File "train.py", line 285, in <module>
+    tfutil.call_func_by_name(**config.train)
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/tfutil.py", line 236, in call_func_by_name
+    return import_obj(func)(*args, **kwargs)
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/train.py", line 188, in train_progressive_gan
+    D_loss = tfutil.call_func_by_name(G=G_gpu, D=D_gpu, opt=D_opt, training_set=training_set, minibatch_size=minibatch_split, reals=reals_gpu, labels=labels_gpu, **config.D_loss)
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/tfutil.py", line 236, in call_func_by_name
+    return import_obj(func)(*args, **kwargs)
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/loss.py", line 50, in D_wgangp_acgan
+    fake_images_out = G.get_output_for(latents, labels, is_training=True)
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/tfutil.py", line 509, in get_output_for
+    out_expr = self._build_func(*named_inputs, **all_kwargs)
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/networks.py", line 225, in G_paper
+    images_out = grow(combo_in, 2, resolution_log2 - 2)
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/networks.py", line 220, in grow
+    y = block(x, res)
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/networks.py", line 184, in block
+    x = dense(x, fmaps=nf(res-1)*16, gain=np.sqrt(2)/4, use_wscale=use_wscale) # override gain to match the original Theano implementation
+  File "/home/oshanqq/works/learn-graduation-research/gan-love/progressive_growing_of_gans/networks.py", line 39, in dense
+    return tf.matmul(x, w)
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/ops/math_ops.py", line 2064, in matmul
+    a, b, transpose_a=transpose_a, transpose_b=transpose_b, name=name)
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/ops/gen_math_ops.py", line 2507, in _mat_mul
+    name=name)
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/framework/op_def_library.py", line 787, in _apply_op_helper
+    op_def=op_def)
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 3271, in create_op
+    op_def=op_def)
+  File "/home/oshanqq/anaconda3/envs/pggan/lib/python3.6/site-packages/tensorflow/python/framework/ops.py", line 1650, in __init__
+    self._traceback = self._graph._extract_stack()  # pylint: disable=protected-access
+
+InternalError (see above for traceback): Blas GEMM launch failed : a.shape=(128, 512), b.shape=(512, 8192), m=128, n=8192, k=512
+	 [[Node: GPU0/D_loss/G/4x4/Dense/MatMul = MatMul[T=DT_FLOAT, transpose_a=false, transpose_b=false, _device="/job:localhost/replica:0/task:0/device:GPU:0"](GPU0/D_loss/G/4x4/PixelNorm/mul, GPU0/D_loss/G/4x4/Dense/mul)]]
+	 [[Node: TrainD/ApplyGrads1/UpdateWeights/cond/pred_id/_2365 = _HostRecv[client_terminated=false, recv_device="/job:localhost/replica:0/task:0/device:CPU:0", send_device="/job:localhost/replica:0/task:0/device:GPU:1", send_device_incarnation=1, tensor_name="edge_44614_TrainD/ApplyGrads1/UpdateWeights/cond/pred_id", tensor_type=DT_BOOL, _device="/job:localhost/replica:0/task:0/device:CPU:0"]()]]
+
