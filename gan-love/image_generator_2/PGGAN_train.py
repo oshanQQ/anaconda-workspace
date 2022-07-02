@@ -56,7 +56,7 @@ if __name__ == '__main__':
 	train_img_list = make_datapath_list()
 	train_dataset = GAN_Img_Dataset(file_list=train_img_list,transform=ImageTransform(resize_pixel=512))
 	#データローダー作成
-	batch_size = 8#ミニバッチあたりのサイズ
+	batch_size = 16#ミニバッチあたりのサイズ
 	train_dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
 
 	#学習開始
