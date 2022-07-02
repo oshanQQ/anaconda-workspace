@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
 	#訓練データの読み込み、データセット作成
 	train_img_list = make_datapath_list()
-	train_dataset = GAN_Img_Dataset(file_list=train_img_list,transform=ImageTransform(resize_pixel=256))
+	train_dataset = GAN_Img_Dataset(file_list=train_img_list,transform=ImageTransform(resize_pixel=512))
 	#データローダー作成
 	batch_size = 8#ミニバッチあたりのサイズ
 	train_dataloader = torch.utils.data.DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
@@ -70,9 +70,9 @@ if __name__ == '__main__':
 	z0 = torch.randn(16, 512*16).to(device)
 	#z0はclampを用いて値の下限を-1、上限を1にしておく
 	z0 = torch.clamp(z0, -1.,1.)
-	#学習は合計res_step*8回行う
+	#学習は合計res_step*9回行う
 	#res_step回繰り返すごとに解像度が高まっていく
-	while(iteration<res_step*8):
+	while(iteration<res_step*9):
 		#学習が終わりに近づいてきたら学習率を下げる
 		if iteration==res_step*7.5:
 			optG.param_groups[0]['lr'] = 0.0001
@@ -158,7 +158,7 @@ if __name__ == '__main__':
 			#イテレーションをカウント
 			iteration += 1
 
-			if (iteration%500==0 or iteration==res_step*8):
+			if (iteration%500==0 or iteration==res_step*9):
 				#画像の出力を行う
 				netG_mavg.eval()
 				#ノイズを入力して16枚画像を生成
@@ -167,7 +167,7 @@ if __name__ == '__main__':
 				x_ = netG_mavg.forward(z, res)
 
 				dst = torch.cat((x_0, x_), dim=0)
-				dst = F.interpolate(dst, (256,256), mode='nearest')
+				dst = F.interpolate(dst, (512,512), mode='nearest')
 				dst = dst.to('cpu').detach().numpy()
 				#それぞれ生成された画像の枚数、チャネル数、高さpixel、幅pixel
 				num_picture, channel, height, width = dst.shape
@@ -196,7 +196,7 @@ if __name__ == '__main__':
 
 			#学習が終わるとループを抜けるが、その際にlossのグラフを出力する
 			#学習済みモデルの出力も行う
-			if iteration == res_step*8:
+			if iteration == res_step*9:
 				#lossのグラフを出力する
 				losses_ = np.array(losses)
 				niter = losses_.shape[0]//100*100
